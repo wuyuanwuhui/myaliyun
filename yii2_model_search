@@ -1,0 +1,115 @@
+<?php
+
+    /**
+     * Search 
+     */
+    public function actionSearch()
+    {
+        $orderBy = ['id' => SORT_DESC, 'status'=> SORT_ASC];
+        $condition = ['id' => ':id', 'status' => ':status'];
+        $condition = 'id=:id And status=:status';
+        $id = 1;
+        $status = 10;
+        $params = [':id' => $id, ':status' => $status];
+        
+        $data = [];
+        $offset = 0;
+        $limit = 100;
+        
+        $query = TestUser::find()
+        ->where($condition, $params)
+        //->andFilterWhere($condition)        
+        ->offset($offset)
+        ->limit($limit)
+        ->orderBy($orderBy)
+        ->asArray()       
+        ->all()
+        ;
+        
+        VarDumper::dump($query, 9, true);
+    }
+    
+    public static function parseCondition($string)
+    {
+        $string = '&id=100?usename=aaaa';
+    }
+    
+    //---------------------------------------------------------------------------------------------------
+    
+    /**
+     * Create data provider for Assignment model.
+     * @param  array                        $params
+     * @param  \yii\db\ActiveRecord         $class
+     * @param  string                       $usernameField
+     * @return \yii\data\ActiveDataProvider
+     */
+    public function search($params, $class, $usernameField='', $sort = '', $condition = '', $op = '')
+    {
+        $query = $class::find()->where($condition);
+        if(is_array($sort)){
+            foreach( $sort as $st=>$val ){
+                $defaultSort = [
+                    $st => $val,
+                ];
+            }
+        }
+        else{
+            $defaultSort = [
+                $sort => SORT_DESC,
+            ];
+        }
+       
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+            'pagination' => [
+                'pagesize' => Yii::$app->params['pagesize'],
+            ],            
+            'sort' => [
+                'defaultOrder' => $defaultSort,
+            ],
+        ]);
+        if( !empty($usernameField)){
+            $usernameField = (array) $usernameField;
+            foreach($usernameField as $Field){
+                if( (($playtime = strstr($Field, 'playtime')) !== false ) ){
+                    if(empty($params['SearchModel']["{$Field}"])){
+                        $params['SearchModel']["{$Field}"] = date('Y-m-d', time());
+                    }
+                }
+            }
+        }
+       
+        //var_dump($params);exit;
+        
+        if (!($this->load($params) && $this->validate())) {
+            return $dataProvider;
+        }
+        $timeField = [
+                'slide_start_time',
+                'slide_end_time',                    
+                'epg_playtime',
+                'epg_endtime'            
+        ];
+        if( !empty($usernameField)){
+            $usernameField = (array) $usernameField;
+            foreach($usernameField as $Field){
+                if( $op != '' ) {
+                    $query->andFilterWhere([$op, $Field, $this->$Field]);
+                }               
+                else if(strstr($Field, 'time')){
+                    if(strstr($Field, 'endtime') && !empty($this->$Field)){
+                        $query->andFilterWhere(['<=', $Field, (string)strtotime(urldecode($this->$Field) . '23:59:59')]);
+                    }
+                    else{
+                        $query->andFilterWhere(['=', "FROM_UNIXTIME($Field, '%Y-%m-%d')", $this->$Field]);
+                    }
+                }
+                else{
+                    $operator = isset(self::$operate["$Field"]) ? self::$operate["$Field"] : 'like';
+                    $query->andFilterWhere([$operator, $Field, $this->$Field]);
+                }
+                
+            }            
+        }
+
+?>
