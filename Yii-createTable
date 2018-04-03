@@ -1,0 +1,21 @@
+<?php
+
+
+    /**
+     * create table
+     */
+     public function actionCreateTable()
+     {
+         $migration = new Migration();
+         $tableOptions = 'CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB';
+
+         $result = Yii::$app->db->createCommand()
+             ->createTable('{{customer}}', [
+                 'id' => $migration->primaryKey(),
+                 'username' => $migration->string(32),
+                 'age' => $migration->integer(2)
+             ], $tableOptions)
+             ->execute();
+
+         var_dump($result);exit;
+     }
