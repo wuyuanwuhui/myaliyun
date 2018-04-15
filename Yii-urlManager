@@ -1,0 +1,20 @@
+<?php
+
+
+//url解析
+'urlManager' => [
+  'enablePrettyUrl' => true,
+  'showScriptName' => false,
+  'enableStrictParsing' => false,  //不启用严格解析
+  'rules' => [
+//                 'pattern' => 'post/<page:\d+>/<tag>',
+//                 'route' => 'post/index'
+//                 'posts' => 'post/index',
+//                 'post/<id:\d+>' => 'post/view',
+//               '/tools/<id:\d+>' => '/tools/view',                
+      // 路由/tools/local/100 映射到 /tools/local?id=100 不要在第一个路由写id
+      // id是作为操作(action)的参数 
+      '<controller:\w+>/<action:\w+>/<id:\d+>' => '<controller>/<action>',
+      '<controller:\w+>/<action:\w+>' => '<controller>/<action>',
+  ],
+],

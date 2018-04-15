@@ -1,0 +1,33 @@
+<?php
+
+public function rules()
+{
+	return [
+
+	];
+}
+
+public function attributeLabels()
+{
+	return [
+		// attribute => label	
+	];
+}
+
+public function relations()
+{
+	return [
+		
+	];
+}
+
+
+public function beforeSave()
+{
+	return true;
+}
+
+public function afterSave()
+{
+	return true;
+}
