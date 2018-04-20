@@ -9,3 +9,8 @@ $2y$13$NsQCaljSrni2Q.rup5Viw.LSwn9qi96BRdU1HMq1bQ6yuUR48aLQy
 
 
 111111
+
+
+
+
+$password_hash = Yii::$app->security->generatePasswordHash('111111');
