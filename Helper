@@ -34,3 +34,46 @@ private static $parse;
         }
         return $tree;
     }
+
+//----------------------------------------------
+
+public function actionTest()
+    {
+        $items = [
+            ['parent' => 'admin', 'child' => 'view'],
+            ['parent' => 'admin', 'child' => 'update'],
+            ['parent' => 'admin', 'child' => 'add'],
+            ['parent' => 'admin', 'child' => 'delete'],
+            ['parent' => 'view', 'child' => '查看'],
+            ['parent' => 'update', 'child' => '修改'],
+            ['parent' => 'delete', 'child' => '删除'],
+        ];
+
+        // Dump::dump(Dump::toTree($items));
+
+        $parent_1 = ArrayHelper::getColumn($items, 'parent');
+        $parent_1 = array_unique($parent_1);
+        // reset parent
+        $parent = [];
+        foreach($parent_1 as $key=>$prt){
+            $parent[$prt] = ['id' => $key+1, 'pid' => 0, 'label' => $prt];
+        }
+        $last = end($parent);
+        $maxId = $last['id'];
+        // try to assign id
+        $itemIndex = $maxId+1;
+
+        foreach($items as $key => $item) {
+            $id = $itemIndex+$key;
+            $pid = $parent[$item['parent']]['id'];
+            $label = $item['child'];
+            $items[$key] = ['id' => $id, 'pid' => $pid, 'label' => $label];
+        }
+
+        $allItems = array_merge(array_values($parent), $items);
+        $allItems = ArrayHelper::index($allItems, 'id');
+        $tree = Dump::toTree($allItems);
+        Dump::dump($tree);
+        // Dump::dump($last);
+    }
+
