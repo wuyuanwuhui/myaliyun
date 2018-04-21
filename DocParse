@@ -1,0 +1,36 @@
+
+private static $parse;
+
+    public static function instanceParser()
+    {
+        if(self::$parse == null) {
+            self::$parse = new DocParser();
+        }
+
+        return self::$parse;
+    }
+
+    public static function DocParser($doc)
+    {
+        if (!$doc) return '';
+
+        return self::instanceParser()->parse($doc);
+    }
+
+    /**
+     * 生成树形菜单：必须带有索引主键
+     *
+     * @param $items
+     * @return array
+     */
+    public static function toTree($items){
+        $tree = array();
+        foreach($items as $item){
+            if(isset($items[$item['pid']])){
+                $items[$item['pid']]['children'][] = &$items[$item['id']];
+            }else{
+                $tree[] = &$items[$item['id']];
+            }
+        }
+        return $tree;
+    }
