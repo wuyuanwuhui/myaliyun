@@ -1,0 +1,38 @@
+/**
+     *
+     *
+     * @note: 返回用户权限菜单
+     *
+     * @return array|\yii\db\ActiveRecord[]
+     */
+    public function actionUserMenu()
+    {
+        $manage = Yii::$app->authManager;
+        $user_id = Yii::$app->user->identity->getId();
+        $permissions = $manage->getPermissionsByUser($user_id);
+        $permissions = array_keys($permissions);
+        foreach($permissions as $key=>$permit){
+            if($permit[0] == '/'){
+                unset($permissions[$key]);
+            }
+        }
+        $newItems = [];
+        if($permissions) {
+            $string = " ' " . implode("','", $permissions) . " ' ";
+            $where = " name in ($string) and ismodule in (1, 2) ";
+            $items = AuthItem::find()->select('name')->where($where)->asArray()->column();
+            $itemsChild = AuthItemChild::find()->where(['auth_type' => item::TYPE_PERMISSION])->orderBy('create_at asc')->asArray()->all();
+
+            foreach($items as $k => $val){
+                // find father
+                $parent = Helper::searchParent($itemsChild, $val);
+                if($parent) {
+                    $child = ['parent' => $parent, 'name' => $val, 'path' => ''];
+                    $newItems[$parent]['children'][] = $child;
+                }
+            }
+        }
+        // Dump::dump($newItems); die();
+
+        return $newItems;
+    }
