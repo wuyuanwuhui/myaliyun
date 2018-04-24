@@ -1,0 +1,24 @@
+// todo fixed recursive
+    public static function searchParents($itemsChild, $value)
+    {
+        $parents = [];
+        $parent = Helper::searchParent($itemsChild, $value);
+
+        if ($parent != '') {
+            $parents[] = $parent;
+            $parent0 = Helper::searchParent($itemsChild, $parent);
+            if($parent0 != ''){
+                $parents[] = $parent0;
+                $parent00 = Helper::searchParent($itemsChild, $parent0);
+                if($parent00 != '') {
+                    $parents[] = $parent00;
+                    $parent000 = Helper::searchParent($itemsChild, $parent00);
+                    if($parent000) {
+                        $parents[] = $parent000;
+                    }
+                }
+            }
+        }
+
+        return $parents;
+    }
